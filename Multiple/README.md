@@ -127,3 +127,167 @@ for i in range(4):
 
 ## java_check
 
+Nhìn qua hàm này mình thấy mã giả của nó trông khá khó đọc :((((
+
+![](https://github.com/konate47/KMACTF2023II/blob/bad74a984eaa7cc2f8c43511775fadbee7ddda73/Multiple/Img/java1.png)
+
+Mình sẽ load file jni.h vào IDA64 để nhìn dễ hơn. Vào File -> Load file -> Parse C header file và load file jni.h vào. Sau đó convert hai biết ```v2``` và ```v3``` thành ```JNIEnv_``` (Convert to struct *). 
+
+![](https://github.com/konate47/KMACTF2023II/blob/b3b0764f77e81ab7b460e9f26e7eacab01aae847/Multiple/Img/java2.png)
+
+Sau đó mình chuột phải vào ```GetStaticMethodID``` r chọn Force call type
+
+![](https://github.com/konate47/KMACTF2023II/blob/b3b0764f77e81ab7b460e9f26e7eacab01aae847/Multiple/Img/java3.png)
+
+Làm tương tự bước trên với ```DefineClass```. Và bây giờ mọi thứ trông dễ nhìn hơn rồi đó :)))
+
+![](https://github.com/konate47/KMACTF2023II/blob/b3b0764f77e81ab7b460e9f26e7eacab01aae847/Multiple/Img/java4.png)
+
+Vào trong biến ```clazz```, mình đoán đây là nơi chưa các class cần thiết cho hàm ```java_check```
+
+![](https://github.com/konate47/KMACTF2023II/blob/b3b0764f77e81ab7b460e9f26e7eacab01aae847/Multiple/Img/java5.png)
+
+Mình sẽ Export toàn bộ raw bytes của biến ```clazz``` rồi lưu vào file clazz.jar
+
+![](https://github.com/konate47/KMACTF2023II/blob/b3b0764f77e81ab7b460e9f26e7eacab01aae847/Multiple/Img/java6.png)
+
+Mở file clazz.jar với jadx-gui và vào hàm ```Check``` trong class ```Prog```, và mình thấy đây chính là hàm kiểm tra Flag
+
+![](https://github.com/konate47/KMACTF2023II/blob/b3b0764f77e81ab7b460e9f26e7eacab01aae847/Multiple/Img/java7.png)
+
+Dựa vào hàm ```Check``` trên mình sẽ viết Script của phần này:
+
+```
+java_flag = ''
+iArr2 = [BitVec('x%d'%i, 8) for i in range(9)]
+s = Solver()
+for i in range(9):
+    s.add(And(iArr2[i] >= 0x20, iArr2[i] <= 0x7e))
+s.add(((((((((iArr2[0] ^ iArr2[1]) ^ iArr2[2]) ^ iArr2[3]) ^ iArr2[4]) ^ iArr2[5]) ^ iArr2[6]) ^ iArr2[7]) ^ iArr2[8]) == 41)
+s.add(iArr2[0] + iArr2[1] + 57005 == 57138)
+s.add(iArr2[2] + iArr2[3] + (iArr2[0] ^ iArr2[3]) == 206)
+s.add(iArr2[4] + iArr2[5] + ((iArr2[2] ^ iArr2[4]) ^ iArr2[5]) == 181)
+s.add((iArr2[6] ^ iArr2[7]) + ((iArr2[8] + iArr2[4]) ^ iArr2[3]) == 321)
+s.add(iArr2[7] + iArr2[8] + 4919 + ((iArr2[7] ^ iArr2[8]) ^ 4660) == 9809)
+s.add(iArr2[0] + iArr2[1] == 133)
+s.add(iArr2[0] + iArr2[1] == 133)
+s.add(iArr2[2] + iArr2[3] == 199)
+s.add(iArr2[0] + iArr2[4] == 134)
+s.add(iArr2[5] + iArr2[6] == 221)
+s.add((iArr2[7] ^ iArr2[8]) == 71)
+s.add(iArr2[7] + iArr2[1] == 99)
+s.add(iArr2[8] + iArr2[5] == 216)
+test = []
+if s.check() ==sat:
+    m = s.model()
+    for i in range(9):
+        test.append(m[iArr2[i]].as_long())
+iArr1 = [8, 7, 2, 4, 5, 0, 3, 1, 6]
+for i in range(8, -1, -1):
+    i3 = test[i]
+    i4 = test[iArr1[i]]
+    test[iArr1[i]] = i3
+    test[i] = i4
+for i in test:
+    java_flag += chr(i)
+```
+
+## rust_check
+
+Đọc qua mã giả hàm ```rust_check``` hàm này đơn giản chỉ là xor flag với ```v9``` rồi so sánh với ```v10```
+
+![](https://github.com/konate47/KMACTF2023II/blob/c6916e8b7339014b6c5cec887a671d0bb169e913/Multiple/Img/rust.png)
+
+Dựa vào đó mình viết script của phần này:
+
+```
+rust_flag = ''
+v9 = [0xCA, 0xDE, 0xBE, 0xEF, 0xFE, 0x13]
+v10 = [0xB8, 0xEF, 0xD9, 0x87, 0x8A, ord(',')]
+for i in range(6):
+    v9[i] = v9[i] ^ v10[i % len(v10)]
+    rust_flag += chr(v9[i])
+```
+
+### Tổng hợp cả năm phần, mình có toàn bộ Script để giải bài trên:
+
+```
+from z3 import *
+
+c_flag = ''
+a = 'F9B26306BEB2667A'
+b = 'CAFE1337'
+a = bytes.fromhex(a)[::-1]
+b = bytes.fromhex(b)[::-1]
+for i in range(8):
+    c_flag += chr(a[i] ^ b[(i & 3) - 4])
+    #chr(a[i] ^ b[i%4])
+
+go_flag = ''
+flag = [BitVec('x%d'%i, 8) for i in range(8)]
+v8 = [88, 41, 97, 116]
+v9 = [160, 130, 181, 188, 137, 123, 122]
+s = Solver()
+for i in range(0, 8, 2):
+    s.add(flag[i] ^ flag[i+1] == v8[i//2])
+for i in range(7):
+    s.add(flag[i] + flag[i + 1] == v9[i])
+if s.check() == sat:
+    m = s.model()
+    for i in range(8):
+        go_flag += chr(m[flag[i]].as_long())
+
+python_flag = ''
+python_check = [0xF6, 0x60, 0xE1, 0xF7]
+checker = [0xBB, 0x54, 0xAA, 0xC4]
+for i in range(4):
+    python_check[i] = python_check[i] ^ checker[i]
+    python_flag += chr(python_check[i])
+
+java_flag = ''
+iArr2 = [BitVec('x%d'%i, 8) for i in range(9)]
+s = Solver()
+for i in range(9):
+    s.add(And(iArr2[i] >= 0x20, iArr2[i] <= 0x7e))
+s.add(((((((((iArr2[0] ^ iArr2[1]) ^ iArr2[2]) ^ iArr2[3]) ^ iArr2[4]) ^ iArr2[5]) ^ iArr2[6]) ^ iArr2[7]) ^ iArr2[8]) == 41)
+s.add(iArr2[0] + iArr2[1] + 57005 == 57138)
+s.add(iArr2[2] + iArr2[3] + (iArr2[0] ^ iArr2[3]) == 206)
+s.add(iArr2[4] + iArr2[5] + ((iArr2[2] ^ iArr2[4]) ^ iArr2[5]) == 181)
+s.add((iArr2[6] ^ iArr2[7]) + ((iArr2[8] + iArr2[4]) ^ iArr2[3]) == 321)
+s.add(iArr2[7] + iArr2[8] + 4919 + ((iArr2[7] ^ iArr2[8]) ^ 4660) == 9809)
+s.add(iArr2[0] + iArr2[1] == 133)
+s.add(iArr2[0] + iArr2[1] == 133)
+s.add(iArr2[2] + iArr2[3] == 199)
+s.add(iArr2[0] + iArr2[4] == 134)
+s.add(iArr2[5] + iArr2[6] == 221)
+s.add((iArr2[7] ^ iArr2[8]) == 71)
+s.add(iArr2[7] + iArr2[1] == 99)
+s.add(iArr2[8] + iArr2[5] == 216)
+test = []
+if s.check() == sat:
+    m = s.model()
+    for i in range(9):
+        test.append(m[iArr2[i]].as_long())
+iArr1 = [8, 7, 2, 4, 5, 0, 3, 1, 6]
+for i in range(8, -1, -1):
+    i3 = test[i]
+    i4 = test[iArr1[i]]
+    test[iArr1[i]] = i3
+    test[i] = i4
+for i in test:
+    java_flag += chr(i)
+
+rust_flag = ''
+v9 = [0xCA, 0xDE, 0xBE, 0xEF, 0xFE, 0x13]
+v10 = [0xB8, 0xEF, 0xD9, 0x87, 0x8A, ord(',')]
+for i in range(6):
+    v9[i] = v9[i] ^ v10[i % len(v10)]
+    rust_flag += chr(v9[i])
+
+flag = 'KMACTF{' + c_flag + '_' + go_flag + '_' + python_flag + '_' + java_flag + '_' + rust_flag + '}'
+print(flag)
+```
+
+# Flag
+
+```KMACTF{MuLt1pL3_l4NgU4G3_M4K3_y0uUt1R3d_r1ght?}```
