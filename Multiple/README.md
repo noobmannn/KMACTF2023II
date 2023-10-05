@@ -110,5 +110,20 @@ if s.check() ==sat:
 
 Tuy nhiên khi mình truy cập vào ```(unsigned __int8)PyLong_AsLong()```, mình chỉ thấy nó là một hàm lấy từ thư viện và không thể xem thêm được.
 
-Mình sẽ đặt breakpoint tại ```0x0002C0BD``` và tiến hành Debug bằng cách sử dụng file linux_server64 mình thêm vào bên trong docker image
+Mình sẽ đặt breakpoint tại ```0x0002C0B7``` và tiến hành Debug bằng cách sử dụng file linux_server64 mình thêm vào bên trong docker image
+
+![](https://github.com/konate47/KMACTF2023II/blob/abbd1ade69fa9757b3dd0f71b1d235d07cb3b7d4/Multiple/Img/py2.png)
+
+Quan sát sự thay đổi giá trị của thanh ghi ```al``` trong câu lệnh ```xor    al, [rbx]```, mình thấy thanh ghi này chỉ luôn nhận 4 giá trị ```0xBB, 0x54, 0xAA, 0xC4```. Đây chính là các giá trị được dùng để Xor với từng kí tự của Flag. Từ đây mình sẽ viết được Script của phần này như sau:
+
+```
+python_flag = ''
+python_check = [0xF6, 0x60, 0xE1, 0xF7]
+checker = [0xBB, 0x54, 0xAA, 0xC4]
+for i in range(4):
+    python_check[i] = python_check[i] ^ checker[i]
+    python_flag += chr(python_check[i])
+```
+
+## java_check
 
