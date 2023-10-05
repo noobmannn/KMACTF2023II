@@ -59,7 +59,7 @@ Hàm này sẽ kiểm tra part đưa vào có phải 8 kí tự hay không, sau 
 
 Dựa vào mã giả mình sẽ viết Script của phần này như sau:
 
-```
+```python
 c_flag = ''
 a = 'F9B26306BEB2667A'
 b = 'CAFE1337'
@@ -86,7 +86,7 @@ Mình đọc thử mã giả của hàm ```go_check``` nhưng chẳng thu đư�
 
 Dựa vào mã giả mình sẽ viết Script của phần này như sau:
 
-```
+```python
 go_flag = ''
 flag = [BitVec('x%d'%i, 8) for i in range(8)]
 v8 = [88, 41, 97, 116]
@@ -116,7 +116,7 @@ Mình sẽ đặt breakpoint tại ```0x0002C0B7``` và tiến hành Debug bằn
 
 Quan sát sự thay đổi giá trị của thanh ghi ```al``` trong câu lệnh ```xor    al, [rbx]```, mình thấy thanh ghi này chỉ luôn nhận 4 giá trị ```0xBB, 0x54, 0xAA, 0xC4```. Đây chính là các giá trị được dùng để Xor với từng kí tự của Flag. Từ đây mình sẽ viết được Script của phần này như sau:
 
-```
+```python
 python_flag = ''
 python_check = [0xF6, 0x60, 0xE1, 0xF7]
 checker = [0xBB, 0x54, 0xAA, 0xC4]
@@ -157,7 +157,7 @@ Mở file [clazz.jar](https://github.com/konate47/KMACTF2023II/blob/f44f82c528f5
 
 Dựa vào hàm ```Check``` trên mình sẽ viết Script của phần này:
 
-```
+```python
 java_flag = ''
 iArr2 = [BitVec('x%d'%i, 8) for i in range(9)]
 s = Solver()
@@ -200,7 +200,7 @@ for i in test:
 
 Dựa vào đó mình viết script của phần này:
 
-```
+```python
 rust_flag = ''
 v9 = [0xCA, 0xDE, 0xBE, 0xEF, 0xFE, 0x13]
 v10 = [0xB8, 0xEF, 0xD9, 0x87, 0x8A, ord(',')]
@@ -211,7 +211,7 @@ for i in range(6):
 
 ### Tổng hợp cả năm phần, mình có toàn bộ Script để giải bài trên:
 
-```
+```python
 from z3 import *
 
 c_flag = ''
