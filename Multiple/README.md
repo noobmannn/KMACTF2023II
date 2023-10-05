@@ -131,7 +131,7 @@ Nhìn qua hàm này mình thấy mã giả của nó trông khá khó đọc :((
 
 ![](https://github.com/konate47/KMACTF2023II/blob/bad74a984eaa7cc2f8c43511775fadbee7ddda73/Multiple/Img/java1.png)
 
-Mình sẽ load file jni.h vào IDA64 để nhìn dễ hơn. Vào File -> Load file -> Parse C header file và load file jni.h vào. Sau đó convert hai biết ```v2``` và ```v3``` thành ```JNIEnv_``` (Convert to struct *). 
+Mình sẽ load file [jni.h](https://github.com/konate47/KMACTF2023II/blob/f44f82c528f52b4893e2fa25ebc3fa515a719d7e/Multiple/Resources/jni.h) vào IDA64 để nhìn dễ hơn. Vào File -> Load file -> Parse C header file và load file [jni.h](https://github.com/konate47/KMACTF2023II/blob/f44f82c528f52b4893e2fa25ebc3fa515a719d7e/Multiple/Resources/jni.h) vào. Sau đó convert hai biết ```v2``` và ```v3``` thành ```JNIEnv_``` (Convert to struct *). 
 
 ![](https://github.com/konate47/KMACTF2023II/blob/b3b0764f77e81ab7b460e9f26e7eacab01aae847/Multiple/Img/java2.png)
 
@@ -147,11 +147,11 @@ Vào trong biến ```clazz```, mình đoán đây là nơi chưa các class cầ
 
 ![](https://github.com/konate47/KMACTF2023II/blob/b3b0764f77e81ab7b460e9f26e7eacab01aae847/Multiple/Img/java5.png)
 
-Mình sẽ Export toàn bộ raw bytes của biến ```clazz``` rồi lưu vào file clazz.jar
+Mình sẽ Export toàn bộ raw bytes của biến ```clazz``` rồi lưu vào file [clazz.jar](https://github.com/konate47/KMACTF2023II/blob/f44f82c528f52b4893e2fa25ebc3fa515a719d7e/Multiple/Resources/clazz.jar)
 
 ![](https://github.com/konate47/KMACTF2023II/blob/b3b0764f77e81ab7b460e9f26e7eacab01aae847/Multiple/Img/java6.png)
 
-Mở file clazz.jar với jadx-gui và vào hàm ```Check``` trong class ```Prog```, và mình thấy đây chính là hàm kiểm tra Flag
+Mở file [clazz.jar](https://github.com/konate47/KMACTF2023II/blob/f44f82c528f52b4893e2fa25ebc3fa515a719d7e/Multiple/Resources/clazz.jar) với jadx-gui và vào hàm ```Check``` trong class ```Prog```, và mình thấy đây chính là hàm kiểm tra Flag
 
 ![](https://github.com/konate47/KMACTF2023II/blob/b3b0764f77e81ab7b460e9f26e7eacab01aae847/Multiple/Img/java7.png)
 
